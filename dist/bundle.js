@@ -872,6 +872,7 @@ var AsyncSetNameActionCreator = function AsyncSetNameActionCreator(name) {
  * Second level: provides next which we can return to move on to the next step in the process (think express.js - or is that native to node? Can't rmember, one of the two)
  * Third level: proveds the action from dispatch or from any previous middleware that has run before this one.
  * Each piece of Middleware is registered with redux through applyMiddleware()
+ * http://redux.js.org/docs/introduction/Ecosystem.html
  */
 
 //First level
@@ -924,6 +925,17 @@ var reducerBuild = combineReducers({
 
 //reduxify the reducer as 'store'
 var store = middlewareBuild(reducerBuild);
+
+/* ================================================================================== Subscribe
+ * 
+ */
+
+console.group("subscribe");
+store.subscribe(function () {
+	console.log('store has been updated. Latest store state:', store.getState());
+	// Update your views here
+});
+console.groupEnd();
 
 console.groupEnd(); //end initialization console group
 

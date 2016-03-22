@@ -108,12 +108,6 @@ var AsyncSetNameActionCreator = function (name) {
 }
 
 
-/* ================================================================================== Notify
- * 
- */
-
-
-
 
 /* ================================================================================== Redux
  * This is where we pass the above reducers to Redux
@@ -142,6 +136,18 @@ console.groupEnd(); //end initialization console group
 
 
 
+/* ================================================================================== Subscribe
+ * 
+ */
+
+store.subscribe(function() {
+    console.log('store has been updated. Latest store state:', store.getState());
+    // Update your views here
+})
+
+//TODO: get state in subscription
+
+//TODO: unsubscribe
 
 
 //See it in action!
