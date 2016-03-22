@@ -775,21 +775,42 @@ module.exports = isPlainObject;
 },{"./_isHostObject":9,"./isObjectLike":10}],12:[function(require,module,exports){
 'use strict';
 
-//======================================================================================= Action creator
-var actionCreator = function actionCreator() {
-	return { type: 'AN_ACTION' };
+var _exports = module.exports = {};
+
+_exports.USER_ACTIONS = {
+	CREATE: 'CREATE_USER',
+	SET_NAME: 'SET_NAME',
+	DELETE: 'DELETE_USER'
 };
 
-//================================================================================== The store / reducer
+_exports.ITEM_ACTIONS = {
+	CREATE: 'CREATE_ITEM',
+	SET_NAME: 'SET_NAME',
+	DELETE: 'DELETE_ITEM'
+};
 
-//store / reducer. This recieves the current state object & an action then returns the next state object
-//action { type: ..., state: ... }
+},{}],13:[function(require,module,exports){
+"use strict";
+
+// https://github.com/happypoulp/redux-tutorial
+
+/* ================================================================================== Reducers
+ * These recieve the current state object (or a part of it) & an action.
+ * They create a new instance of the state object and mutate it based on that action.
+ * They return the new mutated state object.
+ *  - They do not mutate anything outside their own scope: http://www.sitepoint.com/functional-programming-pure-functions/
+ *    "It’s a coffee grinder: beans go in, powder comes out, end of story."
+ */
+console.group("initialization");
 
 var userReducer = function userReducer() {
 	var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 	var action = arguments[1];
 
-	console.log('userReducer was called with state', state, 'and action', action);
+	console.group("userReducer");
+	console.log('state : ', state);
+	console.log('action: ', action);
+	console.groupEnd();
 
 	switch (action.type) {
 		case 'SET_NAME':
@@ -805,7 +826,10 @@ var itemsReducer = function itemsReducer() {
 	var state = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
 	var action = arguments[1];
 
-	console.log('itemsReducer was called with state', state, 'and action', action);
+	console.group("itemsReducer");
+	console.log('state : ', state);
+	console.log('action: ', action);
+	console.groupEnd();
 
 	switch (action.type) {
 		case 'ADD_ITEM':
@@ -815,25 +839,101 @@ var itemsReducer = function itemsReducer() {
 	}
 };
 
+/* ================================================================================== Actions
+ * All information is passed through actions.
+ * These are objects that can take any form but I'm using: https://github.com/acdlite/flux-standard-action
+ * There's even an action compliance test on that repo if we use this
+ * {
+ *     type: String,
+ *     payload: Any,
+ *     error: Boolean,
+ *     meta: Any
+ * }
+ */
+
+var USER_ACTIONs = require('./actionTypes.js').USER_ACTIONS;
+
+var AsyncSetNameActionCreator = function AsyncSetNameActionCreator(name) {
+	//returning a function that is passed dispatch so that this may dispatch the action when async completes
+	//but this doesn't work as actions have to be simple objects - not functions like this guy
+	return function (dispatch) {
+		setTimeout(function () {
+			dispatch({
+				type: USER_ACTIONs.SET_NAME,
+				payload: name,
+				error: false
+			});
+		}, 2000);
+	};
+};
+
+/* ================================================================================== Middleware
+ * First level: provides dispatch & getState? functions for the next two levels to use
+ * Second level: provides next which we can return to move on to the next step in the process (think express.js - or is that native to node? Can't rmember, one of the two)
+ * Third level: proveds the action from dispatch or from any previous middleware that has run before this one.
+ * Each piece of Middleware is registered with redux through applyMiddleware()
+ */
+
+//First level
+var middleware_1 = function middleware_1(_ref) {
+	var dispatch = _ref.dispatch;
+	var getState = _ref.getState;
+
+	//Second level
+	return function (next) {
+		//Third level
+		return function (action) {
+			// your middleware-specific code goes here
+			//this is thunk, it lets us handle async ... I think? TODO: needs work
+			console.log('middleware_1: action received: ', action);
+			return typeof action === 'function' ? action(dispatch, getState) : next(action);
+		};
+	};
+};
+
+var middleware_2 = function middleware_2(_ref2) {
+	var dispatch = _ref2.dispatch;
+	var getState = _ref2.getState;
+
+	return function (next) {
+		return function (action) {
+			console.log('middleware_2: action received: ', action);
+			return next(action);
+		};
+	};
+};
+
+/* ================================================================================== Redux
+ * This is where we pass the above reducers to Redux
+ * redux.combineReducers lets us bundle multiple reducers 
+ *  - (so we can split hendlers for different 'slices' of the state object)
+ * redux.createStore wraps the bundled reducers in ... magic
+ */
+
 //import { createStore, combineReducers } from 'redux';
 var createStore = require('redux').createStore;
 var combineReducers = require('redux').combineReducers;
+var applyMiddleware = require('redux').applyMiddleware;
 
-var reducer = combineReducers({
+var middlewareBuild = applyMiddleware(middleware_1, middleware_2)(createStore);
+
+var reducerBuild = combineReducers({
 	user: userReducer,
 	items: itemsReducer
 });
 
 //reduxify the reducer as 'store'
-var store = createStore(reducer);
+var store = middlewareBuild(reducerBuild);
 
-console.log('store state after initialization:', store.getState());
+console.groupEnd(); //end initialization console group
 
-//Dispatch AN_ACTION
-store.dispatch({
-	type: 'AN_ACTION'
-});
+//See it in action!
+console.group("dispatch");
+console.log('before: ', store.getState());
+store.dispatch(AsyncSetNameActionCreator('bob'));
+console.log('after : ', store.getState());
+console.groupEnd();
 
-//==================================================================================
+//TODO - what else?
 
-},{"redux":7}]},{},[12]);
+},{"./actionTypes.js":12,"redux":7}]},{},[13]);
