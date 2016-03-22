@@ -8,10 +8,10 @@
  *  - They do not mutate anything outside their own scope: http://www.sitepoint.com/functional-programming-pure-functions/
  *    "It’s a coffee grinder: beans go in, powder comes out, end of story."
  */
-console.group("initialization");
+console.groupCollapsed("initialization");
 
 var userReducer = function (state = {}, action) {
-	console.group("userReducer");
+	console.groupCollapsed("userReducer");
 		console.log('state : ', state);
 		console.log('action: ', action);
 	console.groupEnd();
@@ -19,7 +19,7 @@ var userReducer = function (state = {}, action) {
 	switch (action.type) {
 		case 'SET_NAME':
 			return {
-				name: action.name
+				name: action.payload
 			}
 		default:
 			return state;
@@ -27,7 +27,7 @@ var userReducer = function (state = {}, action) {
 }
 
 var itemsReducer = function (state = [], action) {
-	console.group("itemsReducer");
+	console.groupCollapsed("itemsReducer");
 		console.log('state : ', state);
 		console.log('action: ', action);
 	console.groupEnd();
@@ -56,7 +56,7 @@ var itemsReducer = function (state = [], action) {
  * }
  */
 
-var USER_ACTIONs = require('./actionTypes.js').USER_ACTIONS;
+var USER_ACTIONS = require('./actionTypes.js').USER_ACTIONS;
 
 var AsyncSetNameActionCreator = function (name) {
 	//returning a function that is passed dispatch so that this may dispatch the action when async completes
@@ -64,7 +64,7 @@ var AsyncSetNameActionCreator = function (name) {
 	return function(dispatch) {
 		setTimeout(function () {
 			dispatch({
-				type: USER_ACTIONs.SET_NAME,
+				type: USER_ACTIONS.SET_NAME,
 				payload: name,
 				error: false
 			})
@@ -149,15 +149,19 @@ store.subscribe(function() {
 
 //TODO: unsubscribe
 
+//TODO: where is the global state again? in the store, we have to call getState() to get it
+
+
+
+
+
+
+
+
 
 //See it in action!
-console.group("dispatch");
+console.groupCollapsed("dispatch1");
 	console.log('before: ', store.getState());
-	store.dispatch(AsyncSetNameActionCreator('bob'));
+	store.dispatch(AsyncSetNameActionCreator('bob 1'));
 	console.log('after : ', store.getState());
 console.groupEnd();
-
-
-
-
-//TODO - what else?

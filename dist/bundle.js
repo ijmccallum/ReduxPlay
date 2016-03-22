@@ -801,13 +801,13 @@ _exports.ITEM_ACTIONS = {
  *  - They do not mutate anything outside their own scope: http://www.sitepoint.com/functional-programming-pure-functions/
  *    "It’s a coffee grinder: beans go in, powder comes out, end of story."
  */
-console.group("initialization");
+console.groupCollapsed("initialization");
 
 var userReducer = function userReducer() {
 	var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 	var action = arguments[1];
 
-	console.group("userReducer");
+	console.groupCollapsed("userReducer");
 	console.log('state : ', state);
 	console.log('action: ', action);
 	console.groupEnd();
@@ -815,7 +815,7 @@ var userReducer = function userReducer() {
 	switch (action.type) {
 		case 'SET_NAME':
 			return {
-				name: action.name
+				name: action.payload
 			};
 		default:
 			return state;
@@ -826,7 +826,7 @@ var itemsReducer = function itemsReducer() {
 	var state = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
 	var action = arguments[1];
 
-	console.group("itemsReducer");
+	console.groupCollapsed("itemsReducer");
 	console.log('state : ', state);
 	console.log('action: ', action);
 	console.groupEnd();
@@ -851,7 +851,7 @@ var itemsReducer = function itemsReducer() {
  * }
  */
 
-var USER_ACTIONs = require('./actionTypes.js').USER_ACTIONS;
+var USER_ACTIONS = require('./actionTypes.js').USER_ACTIONS;
 
 var AsyncSetNameActionCreator = function AsyncSetNameActionCreator(name) {
 	//returning a function that is passed dispatch so that this may dispatch the action when async completes
@@ -859,7 +859,7 @@ var AsyncSetNameActionCreator = function AsyncSetNameActionCreator(name) {
 	return function (dispatch) {
 		setTimeout(function () {
 			dispatch({
-				type: USER_ACTIONs.SET_NAME,
+				type: USER_ACTIONS.SET_NAME,
 				payload: name,
 				error: false
 			});
@@ -926,26 +926,40 @@ var reducerBuild = combineReducers({
 //reduxify the reducer as 'store'
 var store = middlewareBuild(reducerBuild);
 
+console.groupEnd(); //end initialization console group
+
 /* ================================================================================== Subscribe
  * 
  */
 
-console.group("subscribe");
 store.subscribe(function () {
 	console.log('store has been updated. Latest store state:', store.getState());
 	// Update your views here
 });
-console.groupEnd();
 
-console.groupEnd(); //end initialization console group
+//TODO: get state in subscription
+
+//TODO: unsubscribe
+
+//TODO: where is the global state again?
 
 //See it in action!
-console.group("dispatch");
+console.groupCollapsed("dispatch1");
 console.log('before: ', store.getState());
-store.dispatch(AsyncSetNameActionCreator('bob'));
+store.dispatch(AsyncSetNameActionCreator('bob 1'));
 console.log('after : ', store.getState());
 console.groupEnd();
 
-//TODO - what else?
+console.groupCollapsed("dispatch2");
+console.log('before: ', store.getState());
+store.dispatch(AsyncSetNameActionCreator('bob 2'));
+console.log('after : ', store.getState());
+console.groupEnd();
+
+console.groupCollapsed("dispatch3");
+console.log('before: ', store.getState());
+store.dispatch(AsyncSetNameActionCreator('bob 3'));
+console.log('after : ', store.getState());
+console.groupEnd();
 
 },{"./actionTypes.js":12,"redux":7}]},{},[13]);
